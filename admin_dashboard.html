@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: white;
+    font-family: Arial;
+    overflow: hidden;
+}
+
+/* MATRIX */
+canvas#matrix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+/* LOGOUT BUTTON */
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: cyan;
+    border: none;
+    padding: 8px 16px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 0 10px cyan;
+}
+
+/* CARDS */
+.cards {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 40px;
+}
+
+/* CARD */
+.card {
+    width: 30%;
+    padding: 20px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 15px;
+    box-shadow: 0 0 20px cyan;
+}
+
+/* TABLE */
+.table-container {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #222;
+    font-size: 13px;
+}
+
+th {
+    color: cyan;
+}
+
+td:first-child {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="header">PHISDEC | Advanced Threat Intelligence</div>
+
+<button class="logout-btn" onclick="logout()">LOGOUT</button>
+
+<div class="cards">
+
+<div class="card">
+<h3>User Management</h3>
+<div class="table-container">
+<table id="userTable">
+<thead>
+<tr>
+<th>Username</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Scan History</h3>
+<div class="table-container">
+<table id="scanTable">
+<thead>
+<tr>
+<th>Input</th>
+<th>Type</th>
+<th>Risk</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Risk Monitoring</h3>
+<div class="table-container">
+<table id="riskTable">
+<thead>
+<tr>
+<th>Input</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+<script>
+
+/* LOGOUT */
+function logout() {
+    window.location.href = "/logout";
+}
+
+/* MATRIX */
+let canvas = document.getElementById("matrix");
+let ctxM = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+let letters = "010101010101".split("");
+let fontSize = 14;
+let columns = canvas.width / fontSize;
+let drops = [];
+
+for (let i = 0; i < columns; i++) drops[i] = 1;
+
+function drawMatrix() {
+    ctxM.fillStyle = "rgba(0,0,0,0.1)";
+    ctxM.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctxM.fillStyle = "#00ff00";
+    ctxM.font = fontSize + "px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+        let text = letters[Math.floor(Math.random() * letters.length)];
+        ctxM.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height) drops[i] = 0;
+        drops[i]++;
+    }
+}
+setInterval(drawMatrix, 33);
+
+/* LOAD DATA */
+function loadData() {
+
+fetch('/api/users')
+.then(res => res.json())
+.then(data => {
+let tbody = document.querySelector("#userTable tbody");
+tbody.innerHTML = "";
+data.forEach(u=>{
+tbody.innerHTML += `<tr><td>${u.username}</td><td>${u.role}</td></tr>`;
+});
+});
+
+fetch('/api/scans')
+.then(res => res.json())
+.then(data => {
+
+let scanBody = document.querySelector("#scanTable tbody");
+let riskBody = document.querySelector("#riskTable tbody");
+
+scanBody.innerHTML = "";
+riskBody.innerHTML = "";
+
+data.slice(0,10).forEach(s=>{
+
+let shortInput = s.input.length>25 ? s.input.substring(0,25)+"..." : s.input;
+
+scanBody.innerHTML += `
+<tr>
+<td>${shortInput}</td>
+<td>${s.type}</td>
+<td>${s.risk_score}%</td>
+<td>${s.time}</td>
+</tr>`;
+
+if(s.risk_score>70){
+riskBody.innerHTML += `
+<tr style="color:red;">
+<td>${shortInput}</td>
+<td>${s.risk_score}%</td>
+</tr>`;
+}
+
+});
+
+});
+
+}
+
+loadData();
+
+</script>
+
+</body>
+</html>

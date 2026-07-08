@@ -1,0 +1,154 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* BODY BACKGROUND */
+body {
+    background: linear-gradient(135deg, #000000, #2b0000, #7a0000);
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* CENTER CONTENT */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* INPUT BOX */
+.input-box {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    gap: 15px;
+}
+
+.input-box input {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: #1a0000;
+    color: white;
+}
+
+/* SCAN BUTTON */
+.input-box button {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #ff1a1a;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.input-box button:hover {
+    background: #cc0000;
+}
+
+/* SPEEDOMETER / RESULT */
+.result-box {
+    margin-top: 25px;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    background: rgba(0,0,0,0.6);
+    border-radius: 10px;
+}
+
+/* HAMBURGER MENU */
+.menu-icon {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+/* SIDE MENU */
+.side-menu {
+    position: fixed;
+    top: 0;
+    left: -220px;
+    width: 220px;
+    height: 100%;
+    background: #1a0000;
+    padding-top: 60px;
+    transition: 0.3s;
+}
+
+.side-menu a {
+    display: block;
+    padding: 15px;
+    color: white;
+    text-decoration: none;
+}
+
+.side-menu a:hover {
+    background: #330000;
+}
+
+/* ACTIVE MENU */
+.side-menu.active {
+    left: 0;
+}
+
+/* LOGOUT BUTTON (TOP RIGHT) */
+.logout-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: cyan;
+    padding: 8px 16px;
+    border-radius: 6px;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    box-shadow: 0 0 10px cyan;
+}
+/* TOP STATS ROW */
+.top-stats {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    margin: 20px auto;
+}
+
+/* EACH ITEM */
+.stat-item {
+    flex: 1%;
+}
+
+/* ALIGNMENT */
+.left {
+    text-align: left;
+}
+
+.center {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+/* TEXT STYLE */
+.stat-item h4 {
+    color: cyan;
+    margin-bottom: 5px;
+}
+
+.stat-item p {
+    font-size: 22px;
+    font-weight: bold;
+}

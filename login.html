@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial;
+        }
+
+        /* LOGIN BOX */
+        .login-box {
+            width: 320px;
+            padding: 40px 30px;
+            background: #0a0a0a;
+            border-radius: 20px;
+            text-align: center;
+
+            /* CYAN GLOW */
+            box-shadow: 0 0 20px cyan, 0 0 40px cyan;
+        }
+
+        /* TITLE */
+        .login-box h1 {
+            color: cyan;
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+        }
+
+        /* INPUT */
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+            outline: none;
+            background: #111;
+            color: white;
+        }
+
+        /* SHOW PASSWORD */
+        .show-pass {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0 15px 0;
+        }
+        
+        .show-pass input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .show-pass label {
+            color: cyan;
+                font-size: 14px;
+                cursor: pointer;
+        }
+
+         /* BUTTON */
+        .login-box button {
+            width: 100%;
+            padding: 10px;
+            background: cyan;
+            border: none;
+            border-radius: 6px;
+            color: black;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .login-box button:hover {
+            background: #00cccc;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="login-box">
+    <h1>PHISDEC</h1>
+    <form autocomplete="off">
+
+    <input type="text" name="Username" id="username" placeholder="Username" autocomplete="off">
+    <input type="password" name="Password" id="password" placeholder="password" autocomplete="new-password">
+    <input type="text" style="display: none">
+    <input type="password" style="display: none">
+
+    </form>
+
+    <div class="show-pass">
+        <input type="checkbox" onclick="togglePassword()"> <label>Show Password</label>
+    </div>
+
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+function togglePassword() {
+    let p = document.getElementById("password");
+    p.type = (p.type === "password") ? "text" : "password";
+}
+
+function login() {
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+
+    fetch("/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({username, password})
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            alert("Login failed");
+        }
+    });
+}
+</script>
+
+</body>
+</html>

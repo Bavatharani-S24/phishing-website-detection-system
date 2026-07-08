@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PHISDEC</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    font-family: Arial;
+    color: white;
+    overflow: hidden;
+}
+
+/* MATRIX BACKGROUND */
+canvas#matrix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid cyan;
+}
+
+.header {
+    color: cyan;
+    font-size: 22px;
+}
+
+/* small right-side logout */
+.logout-btn {
+    background: cyan;
+    color: black;
+    border: none;
+    padding: 3px 10px;
+    font-size: 11px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-shadow: 0 0 6px cyan;
+
+    width: auto;
+    margin: 0;
+}
+
+
+/* MAIN */
+.main {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 30px;
+}
+
+/* PANELS */
+.panel {
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px cyan;
+}
+
+/* LEFT */
+.left { width: 30%; }
+
+/* CENTER */
+.center { width: 25%; text-align: center; }
+
+/* RIGHT */
+.right { width: 20%; }
+
+/* TABS */
+.tabs {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border: 1px solid cyan;
+}
+
+.active {
+    background: cyan;
+    color: black;
+}
+
+/* TEXTAREA */
+textarea {
+    width: 100%;
+    height: 150px;
+    background: #111;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px cyan;
+}
+
+/* BUTTON */
+button {
+    margin-top: 10px;
+    padding: 10px;
+    width: 100%;
+    background: black;
+    color: cyan;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 10px cyan;
+    cursor: pointer;
+}
+
+button:hover {
+    background: cyan;
+    color: black;
+}
+
+/* RESULT */
+#percent {
+    font-size: 28px;
+    color: cyan;
+    text-shadow: 0 0 10px cyan;
+}
+
+.status {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+.green { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+.yellow { color: yellow; text-shadow: 0 0 10px yellow; }
+.red { color: red; text-shadow: 0 0 10px red; }
+
+/* RECENT */
+.item {
+    background: #111;
+    padding: 8px;
+    margin: 5px 0;
+    border-radius: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="header-container">
+    <div class="header">PHISDEC | Advanced Threat Intelligence</div>
+    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+</div>
+
+<div class="main">
+
+<div class="panel left">
+<h3>Threat Scanner</h3>
+
+<div class="tabs">
+<div class="tab active" onclick="setMode('url')" id="urlTab">URL</div>
+<div class="tab" onclick="setMode('email')" id="emailTab">Email</div>
+</div>
+
+<textarea id="inputText" placeholder="Paste URL or Email here..."></textarea>
+
+<button onclick="scan()">ANALYZE THREAT</button>
+</div>
+
+<div class="panel center">
+<h3>Results Panel</h3>
+
+<canvas id="speedometer" width="250" height="150"></canvas>
+
+<div id="percent">0%</div>
+<div id="status" class="status">Waiting...</div>
+</div>
+
+<div class="panel right">
+<h3>Recent Threats</h3>
+<div id="history"></div>
+</div>
+
+</div>
+
+<script>
+
+// LOGOUT
+function logout() {
+    window.location.href = "/logout";
+}
+
+// MATRIX EFFECT
+let canvas = document.getElementById("matrix");
+let ctxM = canvas.getContext("2d");
+
+canvas.height = window.innerHeight;
+canvas.width = window.innerWidth;
+
+let letters = "0101010101010101".split("");
+
+let fontSize = 14;
+let columns = canvas.width / fontSize;
+let drops = [];
+
+for (let i = 0; i < columns; i++) drops[i] = 1;
+
+function drawMatrix() {
+    ctxM.fillStyle = "rgba(0,0,0,0.05)";
+    ctxM.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctxM.fillStyle = "#00ff00";
+    ctxM.font = fontSize + "px monospace";
+
+    for (let i = 0; i < drops.length; i++) {
+        let text = letters[Math.floor(Math.random() * letters.length)];
+        ctxM.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height) drops[i] = 0;
+        drops[i]++;
+    }
+}
+setInterval(drawMatrix, 33);
+
+// MODE
+let mode = "url";
+
+function setMode(m) {
+    mode = m;
+    document.getElementById("urlTab").classList.remove("active");
+    document.getElementById("emailTab").classList.remove("active");
+
+    if (m === "url") document.getElementById("urlTab").classList.add("active");
+    else document.getElementById("emailTab").classList.add("active");
+}
+
+// SPEEDOMETER
+let c = document.getElementById("speedometer");
+let ctx = c.getContext("2d");
+
+function drawSpeed(val) {
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    let cx = c.width / 2;
+    let cy = c.height;
+
+    for (let i = 0; i <= 50; i++) {
+        let start = Math.PI + (i * Math.PI / 50);
+        let percent = i * 2;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, 90, start, start + 0.05);
+
+        ctx.strokeStyle = percent <= val ? "cyan" : "#111";
+        ctx.shadowBlur = percent <= val ? 10 : 0;
+
+        ctx.lineWidth = 5;
+        ctx.stroke();
+    }
+}
+
+drawSpeed(0);
+
+// SCAN
+function scan() {
+    let input = document.getElementById("inputText").value;
+
+    document.getElementById("status").innerText = "Scanning...";
+
+    fetch('/api/scan', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({input: input, type: mode})
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        let score = data.risk_score || 0;
+
+        let i = 0;
+        let anim = setInterval(() => {
+            if (i >= score) clearInterval(anim);
+            else {
+                i++;
+                drawSpeed(i);
+                document.getElementById("percent").innerText = i + "%";
+            }
+        }, 20);
+
+        let status = document.getElementById("status");
+
+        if (score <= 30) {
+            status.innerText = "🟢 Legitimate";
+            status.className = "status green";
+        } else if (score <= 70) {
+            status.innerText = "🟡 Suspicious";
+            status.className = "status yellow";
+        } else {
+            status.innerText = "🔴 Phishing";
+            status.className = "status red";
+        }
+
+        let div = document.createElement("div");
+        div.className = "item";
+        div.innerText = input + " → " + score + "%";
+
+        document.getElementById("history").prepend(div);
+
+    });
+}
+
+</script>
+
+</body>
+</html>
